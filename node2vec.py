@@ -62,7 +62,9 @@ class Node2Vec(torch.nn.Module):
 
     def forward(self, subset):
         """Returns the embeddings for the nodes in :obj:`subset`."""
-        return self.embedding(subset)
+        with torch.no_grad():
+            x=self.text_embed(subset)
+        return self.embedder(x)
 
 
     def __random_walk__(self, edge_index, subset=None):
