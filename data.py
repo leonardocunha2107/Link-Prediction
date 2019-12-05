@@ -12,7 +12,7 @@ def get_edge_tensor(device=torch.device("cuda")):
             
     edges=np.array(edges)
     edge1,edge2=np.hstack([edges[:,0],edges[:,1]]),np.hstack([edges[:,1],edges[:,0]])
-    edges_tensor=torch.tensor(np.vstack([edge1,edge2]),device=device)
+    edges_tensor=torch.tensor(np.vstack([edge1,edge2]),device=device,dtype=torch.long)
     return edges_tensor
 
 class  TrainDS:

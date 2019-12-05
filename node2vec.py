@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn 
 from sklearn.linear_model import LogisticRegression
 import numpy as np
+from torch_cluster import random_walk
 
 EPS = 1e-15
 
@@ -36,10 +37,11 @@ class Node2Vec(torch.nn.Module):
         super(Node2Vec, self).__init__()
         assert walk_length >= context_size
         if type(text_embed)==str:
-            text_tensor=torch.tensor(np.load(text_embed))
+            text_tensor=torch.tensor(np.load(text_embed)).type(torch.float)
         else:
             text_tensor=torch.tensor(text_embed)
-        self.text_embed=nn.Embedding.from_pretrained(text_tensor)
+        self.text_embed=nn.Embedding.from_pretrained(text_tensor).type(torch.float)
+        print(text_tensor.shape)
         module_list=[nn.Linear(text_tensor.shape[1],embedding_dim)]+ [nn.ReLU(),nn.Linear(embedding_dim,embedding_dim)]*(embed_layers-1)
         self.embedder=nn.Sequential(*module_list)
         
@@ -86,10 +88,10 @@ class Node2Vec(torch.nn.Module):
         walk = self.__random_walk__(edge_index, subset)
         start, rest = walk[:, 0], walk[:, 1:].contiguous()
         with torch.no_grad():
-            h_start,h_rest=self.text_embed[start],self.text_embed[rest]
+            h_start,h_rest=self.text_embed(start),self.text_embed(rest)
         h_start = self.embedder(h_start).view(
             walk.size(0), 1, self.embedding_dim)
-        h_rest = self.embedder(h_rest.view(-1)).view(
+        h_rest = self.embedder(h_rest).view(
             walk.size(0), rest.size(1), self.embedding_dim)
 
         out = (h_start * h_rest).sum(dim=-1).view(-1)
