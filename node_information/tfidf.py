@@ -21,9 +21,9 @@ def tfidf(filename=None):
     X=vectorizer.fit_transform(file_list)
     decompositor=TruncatedSVD(n_components=500)
     embeds=decompositor.fit_transform(X)
-    if filename and path.exists(path.dir(filename)):
-        np.save(embeds,filename)
+    if filename :
+        np.save(filename,embeds)
     return embeds,vectorizer
 
-        
-                               
+if __name__=='__main__':
+    tfidf(filename='text_embeds')
