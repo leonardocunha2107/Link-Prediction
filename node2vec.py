@@ -1,6 +1,5 @@
 import torch
 import torch.nn as nn 
-from torch_cluster import random_walk
 from sklearn.linear_model import LogisticRegression
 import numpy as np
 
@@ -41,8 +40,8 @@ class Node2Vec(torch.nn.Module):
         else:
             text_tensor=torch.tensor(text_embed)
         self.text_embed=nn.Embedding.from_pretrained(text_tensor)
-        self.embedder=nn.Sequential([nn.Linear(self.text_tensor.shape[1],embedding_dim)]+
-                                     [nn.ReLU(),nn.Linear(embedding_dim,embedding_dim)]*(embed_layers-1))
+        module_list=[nn.Linear(text_tensor.shape[1],embedding_dim)]+ [nn.ReLU(),nn.Linear(embedding_dim,embedding_dim)]*(embed_layers-1)
+        self.embedder=nn.Sequential(*module_list)
         
         self.num_nodes = num_nodes
         self.embedding_dim = embedding_dim
