@@ -3,7 +3,7 @@ import numpy as np
 import random
 from sklearn.decomposition import PCA
 
-def draw(embeds,num_nodes=None):
+def draw(embeds,num_nodes=None,node_size=2):
     G = nx.Graph()
     with open("training.txt", "r") as f:
         for line in f:
@@ -19,6 +19,7 @@ def draw(embeds,num_nodes=None):
         node_list=[str(i) for i in range(x.shape[0])]
         node_list=random.sample(node_list,n-num_nodes)
         for node in node_list:
-            G.remove_node(node)
-    nx.draw(G,pos=pos)
+            if node in G:
+                G.remove_node(node)
+    nx.draw(G,pos=pos,node_size=node_size)
     
