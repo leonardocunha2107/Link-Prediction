@@ -22,9 +22,8 @@ def stats(p,y):
     pprint(metrics)
     return metrics
 
-def train_epoch(model,optim,train_dl,loss_fn=nn.CrossEntropyLoss()):
+def train_epoch(model,optim,train_dl,loss_fn=nn.CrossEntropyLoss(),device=torch.device("cuda")):
     loss_avg=0
-    device=torch.device("cuda")
     model.train()
     i=0
     for x,y in train_dl:
@@ -46,7 +45,7 @@ def train_epoch(model,optim,train_dl,loss_fn=nn.CrossEntropyLoss()):
     print('Loss %.4f' %(loss_avg/i))
     
     return loss_avg
-def loader_stats(model,dataloader,threshold=0.5):
+def loader_stats(model,dataloader,threshold=0.5,device=torch.device("cuda")):
     tp,fp,tn,fn=0,0,0,0
     with torch.no_grad():
         model.eval()  # set model to evaluation mode
