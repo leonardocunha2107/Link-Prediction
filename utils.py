@@ -26,6 +26,7 @@ def train_epoch(model,optim,train_dl,loss_fn=nn.CrossEntropyLoss()):
     loss_avg=0
     device=torch.device("cuda")
     model.train()
+    i=0
     for x,y in train_dl:
         optim.zero_grad()
         x = x.to(device=device, dtype=torch.float)  
@@ -39,9 +40,10 @@ def train_epoch(model,optim,train_dl,loss_fn=nn.CrossEntropyLoss()):
         loss.backward(retain_graph=False)
 
         optim.step()
+        i+=1
 
     
-    print('Loss %.4f' %loss.mean())
+    print('Loss %.4f' %(loss_avg/i))
     
     return loss_avg
 def loader_stats(model,dataloader,threshold=0.5):
@@ -55,6 +57,7 @@ def loader_stats(model,dataloader,threshold=0.5):
 
 
             scores = model(x)
+            scores=torch.nn.functional.softmax(scores)
             preds = (scores[:,1]>threshold).long()
             comp=(preds==y).long()
 
