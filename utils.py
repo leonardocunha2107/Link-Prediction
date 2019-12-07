@@ -28,10 +28,12 @@ def train_epoch(model,optim,train_dl,loss_fn=nn.CrossEntropyLoss(),device=torch.
     i=0
     for x,y in train_dl:
         optim.zero_grad()
-        x = x.to(device=device, dtype=torch.float)  
+        if type(x)==tuple:
+                x=(t.to(device=device,dtype=torch.float) for t in x)
+        else:
+            x = x.to(device=device, dtype=torch.float) 
+       
         y = y.to(device=device, dtype=torch.long)
-
-
         scores = model(x)
         
         loss = loss_fn(scores, y)
@@ -51,7 +53,10 @@ def loader_stats(model,dataloader,threshold=0.5,device=torch.device("cuda")):
         model.eval()  # set model to evaluation mode
         
         for x,y in dataloader:
-            x = x.to(device=device, dtype=torch.float)  
+            if type(x)==tuple:
+                x=(t.to(device=device,dtype=torch.float) for t in x)
+            else:
+                x = x.to(device=device, dtype=torch.float) 
             y = y.to(device=device, dtype=torch.long)
 
 

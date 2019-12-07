@@ -13,13 +13,13 @@ def tfidf(filename=None):
     sw_set=set(get_stop_words('fr')+get_stop_words('en'))
     
     vectorizer=TfidfVectorizer(input='filename',decode_error='ignore',
-                               min_df=3/num_nodes,
-                               max_df=0.05,
+                               min_df=0.01,
+                               max_df=0.4,
                                max_features=10000,
                                stop_words=sw_set)
     
     X=vectorizer.fit_transform(file_list)
-    decompositor=TruncatedSVD(n_components=500)
+    decompositor=TruncatedSVD(n_components=256)
     embeds=decompositor.fit_transform(X)
     if filename :
         np.save(filename,embeds)
