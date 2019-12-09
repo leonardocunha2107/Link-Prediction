@@ -32,7 +32,7 @@ class Node2Vec(torch.nn.Module):
             to :obj:`context_size - 1`. (default: :obj:`None`)
     """
 
-    def __init__(self, num_nodes, embedding_dim, walk_length, context_size,text_embed,
+    def __init__(self, num_nodes, embedding_dim, walk_length, context_size,text_embed,residual=True,
                  walks_per_node=1, p=1, q=1, num_negative_samples=None,embed_layers=2):
         super(Node2Vec, self).__init__()
         assert walk_length >= context_size
@@ -40,8 +40,11 @@ class Node2Vec(torch.nn.Module):
             text_tensor=torch.tensor(np.load(text_embed)).type(torch.float)
         else:
             text_tensor=torch.tensor(text_embed)
+        
         self.text_embed=nn.Embedding.from_pretrained(text_tensor).type(torch.float)
-        print(text_tensor.shape)
+        self.res_embed=None
+        if residual:
+            self.res_embed=nn.Embedding(*text_tensor.shape)
         module_list=[nn.Linear(text_tensor.shape[1],embedding_dim)]+ [nn.ReLU(),nn.Linear(embedding_dim,embedding_dim)]*(embed_layers-1)
         self.embedder=nn.Sequential(*module_list)
         
@@ -89,6 +92,9 @@ class Node2Vec(torch.nn.Module):
         start, rest = walk[:, 0], walk[:, 1:].contiguous()
         with torch.no_grad():
             h_start,h_rest=self.text_embed(start),self.text_embed(rest)
+        if self.res_embed:
+            h_start+=self.res_embed(start)
+            h_rest+=self.res_embed(rest)
         h_start = self.embedder(h_start).view(
             walk.size(0), 1, self.embedding_dim)
         h_rest = self.embedder(h_rest).view(
